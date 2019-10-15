@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // InputSuggestions version 0.0.1
 // currently yield inline suggestions
@@ -26,6 +27,7 @@ class SuggestionsTextField extends StatefulWidget {
 
 class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
   final _controller = TextEditingController();
+  final _focusNode = FocusNode();
 
   List<String> _matches = List();
   String _helperText;
@@ -38,6 +40,25 @@ class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
   @override
   void initState() {
     super.initState();
+  }
+
+  onTextFieldKey(RawKeyEvent event) {
+    if (event is RawKeyUpEvent) {
+      if (event.logicalKey == LogicalKeyboardKey.enter) {
+        submit();
+      } else if (event.data is RawKeyEventDataWeb) {
+        final data = event.data as RawKeyEventDataWeb;
+        if (data.keyLabel == 'Enter') submit();
+      } else if (event.data is RawKeyEventDataAndroid) {
+        final data = event.data as RawKeyEventDataAndroid;
+        if (data.keyCode == 13) submit();
+      }
+    }
+  }
+
+  submit() {
+    final input = _controller.text;
+    _onSubmitted(input);
   }
 
   @override
@@ -56,8 +77,8 @@ class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
             padding: _inputDecoration != null
                 ? _inputDecoration.contentPadding
                 : EdgeInsets.symmetric(
-                    vertical: 5 * (_fontSize / 14),
-                    horizontal: 14 * (_fontSize / 14)),
+                vertical: 5 * (_fontSize / 14),
+                horizontal: 14 * (_fontSize / 14)),
             child: Text(
               _matches.isNotEmpty ? (_matches.first) : "",
               softWrap: false,
@@ -69,18 +90,22 @@ class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
             ),
           ),
         ),
-        TextField(
-          controller: _controller,
-          autofocus: widget.tagsTextFiled.autofocus ?? true,
-          keyboardType: widget.tagsTextFiled.keyboardType ?? null,
-          maxLength: widget.tagsTextFiled.maxLength ?? null,
-          maxLines: 1,
-          autocorrect: widget.tagsTextFiled.autocorrect ?? false,
-          //style: widget.tagsTextFiled.textStyle.copyWith(height: 0.6),
-          decoration: _initialInputDecoration,
-          onChanged: (str) => _checkOnChanged(str),
-          onSubmitted: (str) => _onSubmitted(str),
-        )
+
+
+        RawKeyboardListener(
+            focusNode: _focusNode,
+            onKey: onTextFieldKey,
+            child: TextField(
+              controller: _controller,
+              autofocus: widget.tagsTextFiled.autofocus ?? true,
+              keyboardType: widget.tagsTextFiled.keyboardType ?? null,
+              maxLength: widget.tagsTextFiled.maxLength ?? null,
+              maxLines: 1,
+              autocorrect: widget.tagsTextFiled.autocorrect ?? false,
+              decoration: _initialInputDecoration,
+              onChanged: (str) => _checkOnChanged(str),
+              onSubmitted: (str) => _onSubmitted(str),
+            ))
       ],
     );
   }
@@ -168,24 +193,23 @@ class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
 
 /// Tags TextField
 class TagsTextFiled {
-  TagsTextFiled(
-      {this.lowerCase = false,
-      this.textStyle = const TextStyle(fontSize: 14),
-      this.width = 200,
-      this.duplicates = false,
-      this.suggestions,
-      this.autocorrect,
-      this.autofocus,
-      this.hintText,
-      this.hintTextColor,
-      this.suggestionTextColor,
-      this.helperText,
-      this.helperTextStyle,
-      this.keyboardType,
-      this.maxLength,
-      this.inputDecoration,
-      this.onSubmitted,
-      this.onChanged});
+  TagsTextFiled({this.lowerCase = false,
+    this.textStyle = const TextStyle(fontSize: 14),
+    this.width = 200,
+    this.duplicates = false,
+    this.suggestions,
+    this.autocorrect,
+    this.autofocus,
+    this.hintText,
+    this.hintTextColor,
+    this.suggestionTextColor,
+    this.helperText,
+    this.helperTextStyle,
+    this.keyboardType,
+    this.maxLength,
+    this.inputDecoration,
+    this.onSubmitted,
+    this.onChanged});
 
   final double width;
   final bool duplicates;
