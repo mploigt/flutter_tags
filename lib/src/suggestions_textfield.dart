@@ -91,11 +91,13 @@ class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
           ),
         ),
 
-
         RawKeyboardListener(
             focusNode: _focusNode,
             onKey: onTextFieldKey,
             child: TextField(
+              style: TextStyle(
+                fontSize: _fontSize ?? null,
+              ),
               controller: _controller,
               autofocus: widget.tagsTextFiled.autofocus ?? true,
               keyboardType: widget.tagsTextFiled.keyboardType ?? null,
