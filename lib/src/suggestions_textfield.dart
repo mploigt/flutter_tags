@@ -76,7 +76,7 @@ class _SuggestionsTextFieldState extends State<SuggestionsTextField> {
           maxLength: widget.tagsTextFiled.maxLength ?? null,
           maxLines: 1,
           autocorrect: widget.tagsTextFiled.autocorrect ?? false,
-          style: widget.tagsTextFiled.textStyle.copyWith(height: 0.6),
+          //style: widget.tagsTextFiled.textStyle.copyWith(height: 0.6),
           decoration: _initialInputDecoration,
           onChanged: (str) => _checkOnChanged(str),
           onSubmitted: (str) => _onSubmitted(str),
